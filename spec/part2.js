@@ -280,6 +280,7 @@
         expect(destination.a).to.equal(1);
         expect(destination.b).to.equal(2);
         expect(destination.c).to.equal('three');
+        console.log(destination);
       });
 
       it('should not copy a property if that key is already set on the target', function() {
@@ -287,6 +288,7 @@
         var source = { a: 1 };
 
         _.defaults(destination, source);
+        console.log(_.contains(Object.keys(source),'a'));
 
         expect(destination.a).to.equal(10);
       });
@@ -440,7 +442,7 @@
         memoSpy(10);
         expect(spy).to.have.been.calledOnce;
       });
-      
+
       it('should not run the memoized function twice when given a reference type as an argument', function() {
         // Be careful how you are checking if a set of arguments has been passed in already
         var spy = sinon.spy(function() { return 'Dummy output'; });

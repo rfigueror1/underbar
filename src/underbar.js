@@ -32,20 +32,20 @@
   // Return an array of the first n elements of an array. If n is undefined,
   // return just the first element.
   _.first = function(array, n) {
-    return n === undefined ? array[0] : array.slice(0, n);
+    return n === undefined ? array[0] : array.slice(0, n);//if the parameter n is undefined, then return the first element
   };
 
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
-    if(n==0){
+    if(n==0){//if n is equal to 0 return an empty array
       return [];
     }
-    if(n>array.length){
+    if(n>array.length){//if n is larger than the array'length, then return the complete array
       return array.slice(0);
     }
     else{
-      return n === undefined ? array[array.length-1] : array.slice(n-1);
+      return n === undefined ? array[array.length-1] : array.slice(n-1);//else return the slice of the array from n-1
     }
 
   };
@@ -57,13 +57,13 @@
   // iterator function over each item in the input collection.
 
   _.each = function(collection, iterator) {
-    if (Array.isArray(collection)) {
+    if (Array.isArray(collection)) {//chech if collection is array
       for (var i = 0; i < collection.length; i++) {
-        iterator(collection[i], i, collection);
+        iterator(collection[i], i, collection);//execute the iterator function for each of the array's elements
       }
-    } else {
+    } else {//if collection is an object (not an array)
       for (var key in collection) {
-        iterator(collection[key], key, collection);
+        iterator(collection[key], key, collection);//execute the iterator function for each of the object's elements
       }
 }
   };
@@ -89,7 +89,7 @@
   // Return all elements of an array that pass a truth test.
   _.filter = function(array, test) {
     var filter = [];
-    _.each(array, function(item) {
+    _.each(array, function(item) {//test if the iterator function is valid for each element
       if (test(item) == true) {
         filter.push(item);
       }
@@ -102,7 +102,7 @@
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
     var filter = [];
-    _.each(collection, function(item) {
+    _.each(collection, function(item) {//test if the iterator function is not valid for each element
       if (test(item) == false) {
         filter.push(item);
       }
@@ -115,13 +115,13 @@
     var filter = [];
     _.each(array, function(item, index) {
       //if(iterator(isSorted) == true){
-      if(!isSorted){
-        if(_.indexOf(filter, item) == -1){
-          if(Math.max.apply(null, filter)<item){
+      if(!isSorted){//test if the the array is sorted
+        if(_.indexOf(filter, item) == -1){//check if index of item is -1
+          if(Math.max.apply(null, filter)<item){//check if max element of filter is less than item
               filter.push(item);
           }
-      }
-    }else{
+        }
+      }else{
       if(_.indexOf(filter, item) == -1){
         if(Math.max.apply(null, filter)<item && (index <= iterator(index))){
             filter.push(item);
@@ -139,13 +139,13 @@
     // map() is a useful primitive iteration function that works a lot
     // like each(), but in addition to running the operation on all
     // the members, it also maintains an array of results.
-      var mapArray = [];
+      var mapArray = [];//declaration of empty array
       if (Array.isArray(collection)) {
-        for (var i = 0; i < collection.length; i++) {
+        for (var i = 0; i < collection.length; i++) {//for each element in the collection apply the iterator function
           mapArray.push(iterator(collection[i], i, collection));
         }
       } else {
-        for (var key in collection) {
+        for (var key in collection) {//the same but for objects
           mapArray.push(iterator(collection[key], key, collection));
         }
       }
@@ -197,13 +197,12 @@
     if (first && accumulator === undefined) {
       accumulator = item;
     } else {
-      accumulator = iterator(accumulator, item);
+      accumulator = iterator(accumulator, item);//apply the iterator function on accumulated result
     }
     first = false;
   });
   return accumulator;
 };
-
 
   // Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
@@ -217,18 +216,32 @@
     }, false);
   };
 
-
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
-    // TIP: Try re-using reduce() here.
+    if(iterator == undefined){
+      return _.reduce(collection, function(startValue, item) {
+        return !!item && startValue;
+      }, true);
+    }
+    return _.reduce(collection, function(startValue, item) {
+      return !!iterator(item) && startValue;//appply a binary operator "and" on the iterator function and the start value
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    if(iterator == undefined){
+      return _.reduce(collection, function(startValue, item){//apply a reduction function
+        return !!item || startValue;//appply a binary operator "or" on each item and the start value
+      },false)
+    }else{
+      return _.reduce(collection, function(startValue, item){
+        return !!iterator(item) || startValue;//appply a binary operator "or" on the iterator function and the start value
+      },false)
+    }
   };
-
 
   /**
    * OBJECTS
@@ -249,11 +262,25 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    _.each(arguments, function(args) {//apply on each argument the following function
+      _.each(args, function(value, key) {
+        obj[key] = value;//add the desired property
+      });
+    });
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    _.each(arguments, function(args) {
+      _.each(args, function(value, key) {
+        if(!_.contains(Object.keys(obj),key)){//chech if the object already contains the key parameter
+          obj[key] = args[key];
+        }
+      });
+    });
+    return obj;
   };
 
 
@@ -297,7 +324,15 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
-  };
+    var funcReturns = {};//new object
+    return function() {
+      var arg = JSON.stringify(arguments);//turn arguments into strings to be used as keys for the funcReturns object
+      if (!funcReturns[arg]) {//Check if the value exists for the 'args' key
+        funcReturns[arg] = func.apply(this, arguments);//if the value does not exist, apply the function and store the result
+      }
+      return funcReturns[arg];
+    };
+};
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -306,6 +341,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var args = Array.prototype.slice.call(arguments, 2);//get the arguments from position '2'
+    setTimeout(function() {
+      func.apply(this, args);//execute the function with the prevoisuly obtained arguments
+    }, wait);
   };
 
 
@@ -320,7 +359,15 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
-  };
+  var changed = [];//empty array to store the shuffled elements
+  var copies = array.slice(0, array.length);//copy of the paramater array
+  for (var i = 0; i < array.length; i++) {
+    var random = Math.floor(Math.random() * copies.length);//to obtain random index
+    changed.push(copies[random]);//push into the empty array defined previously the element from 'copies' resulting from the random index
+    copies.splice(random, 1)//delete element from random index from copies array
+  }
+  return changed;
+};
 
 
   /**
